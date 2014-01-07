@@ -267,7 +267,7 @@ class NnexDump:
     def __init__(self, filename):
         self.filename = filename
         self.loadFile(filename)
-        #self._parse()
+        self._parse()
         
     def loadFile(self, filename):
         with open(filename, 'r') as f:
@@ -296,35 +296,18 @@ class NnexDump:
         for notebook in self.notebooks:
             notebook.add_notes(self.notes)
             
-    def get_generator(self, item_type):
-        attribute = item_type.lower() + 's'
-        if self.dump.has_key(item_type):
-            items = self.dump[item_type] if type(self.dump[item_type]) is list else [ self.dump[item_type] ]
-          
-            nnex_class = self.class_map[attribute]
-            return (nnex_class(item) for item in items)
-        
+            
     def get_tags(self):
-        return self.get_generator('Tag')
-        #return self.tags
+        return self.tags
     
     def get_notebooks(self):
-        for nb in self.get_generator('Notebook'):
-            nb.add_notes(self.get_notes())
-            yield nb
-            
-        #return ( nb.add_notes(self.get_notes()) for nb in self.get_generator('Notebook') )
-        #return self.notebooks
+        return self.notebooks
     
     def get_notebooks_for(self, stack):
         return ( nb for nb in self.notebooks if nb.get('Stack') == stack )
     
     def get_notes(self):
-        for n in self.get_generator('Note'):
-            n.add_tags(self.get_tags())
-            yield n
-        #return self.get_generator('Note')
-        #return self.notes
+        return self.notes
     
     def get_stacks(self):
         seen = set()
