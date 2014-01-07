@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+  <dict>
+    <key>version</key>
+    <string>0.1.0</string>
+    <key>name</key>
+    <string>Import Nixnotes</string>
+    <key>author</key>
+    <string>Jonathan Willis</string>
+    <key>website</key>
+    <string>http://github.com</string>
+    <key>description</key>
+    <string>Import Nixnote backups (*.nnex)</string>
+  </dict>
+</extension>
