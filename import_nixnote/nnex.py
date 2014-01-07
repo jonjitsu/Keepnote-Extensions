@@ -5,7 +5,7 @@ import sys
 import codecs
 import htmlentitydefs
 from BeautifulSoup import BeautifulSoup
-from keepnote import notebooklib
+from keepnote import notebooklib, tasklib
 
 class KeepnoteImporter:
     
@@ -199,7 +199,7 @@ class NnexNotebook(NnexContainer):
     defaults = { 'ReadOnly':False, 'Stack':None }
     
     def add_notes(self, notes):
-        self.notes = [ note for note in notes if note.get('NotebookGuid') == self.fields['Guid'] ]
+        self.notes = ( note for note in notes if note.get('NotebookGuid') == self.fields['Guid'] )
         
     def get_notes(self):
         return self.notes
@@ -256,7 +256,8 @@ class NnexNote(NnexContainer):
     
     
 class ProgressObservable:
-    pass
+    def get_progress(self):
+        return self
     
 class NnexDump:
     class_map = {
@@ -264,7 +265,8 @@ class NnexDump:
         'notes'     : NnexNote,
         'notebooks' : NnexNotebook }
     
-    def __init__(self, filename):
+    def __init__(self, filename, task=None):
+        self.task = tasklib.Task() if task is None else task
         self.filename = filename
         self.loadFile(filename)
         self._parse()
@@ -281,9 +283,12 @@ class NnexDump:
         if self.dump.has_key(item_type):
             items = self.dump[item_type] if type(self.dump[item_type]) is list else [ self.dump[item_type] ]
           
+            total_items = len(items)
+            self.task.set_message("Parsing %d %s." % (total_items, attribute) )
             nnex_class = self.class_map[attribute]
             store = getattr(self, attribute)
-            for item in items:
+            for i, item in enumerate(items):
+                self.task.set_percent(i / float(total_items))
                 store.append(nnex_class(item))
             
     def _parse (self):

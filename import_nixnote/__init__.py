@@ -66,36 +66,44 @@ class Extension (keepnote.gui.extension.Extension):
         if notebook is None:
             self.app.error("Must have notebook open to import.")
             return None
-
-        """Imports NoteCase free version ncd file"""
         
-        dialog = gtk.FileChooserDialog(
+        nnex_file = NnexFileChooser().get_file()
+        
+        if nnex_file is not None:
+            nnex_importer = NnexImporter(nnex_file, window)
+            nnex_importer.import_nixnotes()
+
+
+class NnexFileChooser:
+    def __init__(self):
+        self.dialog = gtk.FileChooserDialog(
             "import nnex file", None, 
             action=gtk.FILE_CHOOSER_ACTION_OPEN, 
             buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                      gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         
+                
         file_filter = gtk.FileFilter()
         file_filter.add_pattern("*.nnex")
-        file_filter.set_name("Nixnote (*.ncd)")
-        dialog.add_filter(file_filter)
+        file_filter.set_name("Nixnote (*.nnex)")
+        self.dialog.add_filter(file_filter)
         
         file_filter = gtk.FileFilter()
         file_filter.add_pattern("*")
         file_filter.set_name("All files (*.*)")
-        dialog.add_filter(file_filter)
+        self.dialog.add_filter(file_filter)
         
-        response = dialog.run()
-        
+    def get_file(self):
+        response = self.dialog.run()
+        nnex_file = None
         if response == gtk.RESPONSE_OK:
-            if dialog.get_filename():
-                nnex_file = dialog.get_filename()
-                nnex_importer = NnexImporter(nnex_file, window)
-                nnex_importer.import_nixnotes()
+            if self.dialog.get_filename():
+                nnex_file = self.dialog.get_filename()
                 
             # self.close_notebook()
-        dialog.destroy()
-
+        self.dialog.destroy()
+        
+        return nnex_file
 
 def unset(d, key):
     d.pop(key, None)
